@@ -24,15 +24,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.android.ted.gank.R;
@@ -47,14 +44,16 @@ import com.malinskiy.materialicons.Iconify;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
-import retrofit.RetrofitError;
+//import retrofit.RetrofitError;
+//import retrofit2.Retrofit;
+import okhttp3.OkHttpClient;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -106,14 +105,13 @@ public class BenefitListFragment extends BaseLoadingFragment implements SwipeRef
 
         @Override
         public void onError(final Throwable error) {
-            if (error instanceof RetrofitError) {
+            if (error instanceof HttpException) {
                 Drawable errorDrawable = new IconDrawable(getContext(), Iconify.IconValue.zmdi_network_off)
                         .colorRes(android.R.color.white);
-                RetrofitError e = (RetrofitError) error;
-                if (e.getKind() == RetrofitError.Kind.NETWORK) {
+                HttpException e = (HttpException) error;
+                int code = e.code();
+                if (code != 200) {
                     showError(errorDrawable,"网络异常","好像您的网络出了点问题","重试",mErrorRetryListener);
-                } else if (e.getKind() == RetrofitError.Kind.HTTP) {
-                    showError(errorDrawable,"服务异常","好像服务器出了点问题","再试一次",mErrorRetryListener);
                 } else {
                     showError(errorDrawable,"莫名异常","外星人进攻地球了？","反击",mErrorRetryListener);
                 }
@@ -248,7 +246,7 @@ public class BenefitListFragment extends BaseLoadingFragment implements SwipeRef
     }
 
     private void loadData(int startPage){
-        GankCloudApi.getIns()
+        GankCloudApi.getInstance()
                 .getBenefitsGoods(GankCloudApi.LOAD_LIMIT, startPage)
                 .cache()
                 .subscribeOn(Schedulers.newThread())

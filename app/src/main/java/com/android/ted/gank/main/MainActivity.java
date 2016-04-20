@@ -21,9 +21,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.SharedElementCallback;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -31,7 +29,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import com.android.ted.gank.R;
@@ -43,9 +40,6 @@ import com.android.ted.gank.model.GoodsResult;
 import com.android.ted.gank.network.GankCloudApi;
 import com.orhanobut.logger.Logger;
 import com.umeng.analytics.MobclickAgent;
-
-import java.util.List;
-import java.util.Map;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -180,12 +174,6 @@ public class MainActivity extends AppCompatActivity {
                         return true;
                     }
                 });
-        //navigationView.findViewById(R.id.menu_header).setOnClickListener(new View.OnClickListener() {
-        //    @Override
-        //    public void onClick(View v) {
-        //        callWebView(Constants.GANK_URL);
-        //    }
-        //});
     }
 
     private void disposeMenuAction(MenuItem item){
@@ -206,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
     private void loadAllImageGoods() {
         RealmResults<Image> allImage = mRealm.where(Image.class).findAll();
         if (allImage.size() == 0) {
-            GankCloudApi.getIns()
+            GankCloudApi.getInstance()
                     .getBenefitsGoods(GankCloudApi.LOAD_LIMIT, 1)
                     .cache()
                     .subscribeOn(Schedulers.newThread())

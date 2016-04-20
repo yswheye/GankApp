@@ -25,6 +25,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.android.ted.gank.R;
 import com.android.ted.gank.adapter.GoodsItemAdapter;
@@ -39,12 +40,14 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import retrofit.RetrofitError;
+import retrofit2.adapter.rxjava.HttpException;
 import rx.Observer;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class CommonGoodsListFragment extends BaseLoadingFragment implements SwipeRefreshLayout.OnRefreshListener{
+//import retrofit.RetrofitError;
+
+public class CommonGoodsListFragment extends BaseLoadingFragment implements SwipeRefreshLayout.OnRefreshListener {
     @Bind(R.id.common_recycler_view)
     RecyclerView mRecyclerView;
     @Bind(R.id.common_swipe_refresh)
@@ -81,19 +84,26 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
 
         @Override
         public void onError(final Throwable error) {
-            if (error instanceof RetrofitError) {
-                Drawable errorDrawable = new IconDrawable(getContext(), Iconify.IconValue.zmdi_network_off)
-                        .colorRes(android.R.color.white);
-                RetrofitError e = (RetrofitError) error;
-                if (e.getKind() == RetrofitError.Kind.NETWORK) {
-                    showError(errorDrawable,"网络异常","好像您的网络出了点问题","重试",mErrorRetryListener);
-                } else if (e.getKind() == RetrofitError.Kind.HTTP) {
-                    showError(errorDrawable,"服务异常","好像服务器出了点问题","再试一次",mErrorRetryListener);
-                } else {
-                    showError(errorDrawable,"莫名异常","外星人进攻地球了？","反击",mErrorRetryListener);
-                }
-            }
             isLoadMore = false;
+            if (mCommonItemAdapter.getItemCount() > 0) {
+                mSwipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(getContext(), "网络异常", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Drawable errorDrawable = new IconDrawable(getContext(), Iconify.IconValue.zmdi_network_off)
+                    .colorRes(android.R.color.white);
+            if (error instanceof HttpException) {
+                HttpException e = (HttpException) error;
+                int code = e.code();
+                if (code != 200) {
+                    showError(errorDrawable,"网络异常","您的网络好像出了点问题","重试",mErrorRetryListener);
+                } else {
+                    showError(errorDrawable,"数据异常","","重试",mErrorRetryListener);
+                }
+            } else {
+                showError(errorDrawable,"无法访问网络","请检查网络连接","重试",mErrorRetryListener);
+            }
         }
     };
 
@@ -108,7 +118,7 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
-            lastVisibleItem = ((LinearLayoutManager)recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+            lastVisibleItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
         }
 
         @Override
@@ -130,14 +140,14 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mType = getArguments().getString("type","common");
+        mType = getArguments().getString("type", "common");
         mAllCommonGoods = new ArrayList<>();
         mCommonItemAdapter = new GoodsItemAdapter(getActivity());
     }
 
     @Override
     View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_common_list,null);
+        return inflater.inflate(R.layout.fragment_common_list, null);
     }
 
     @Override
@@ -162,11 +172,11 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
         mSwipeRefreshLayout.setOnRefreshListener(this);
     }
 
-    private void loadMore(){
-        if(isLoadMore)return;
-        if(isALlLoad){
-            Snackbar.make(mRecyclerView,"全部加载完毕",Snackbar.LENGTH_SHORT)
-                    .setAction("知道了",null)
+    private void loadMore() {
+        if (isLoadMore) return;
+        if (isALlLoad) {
+            Snackbar.make(mRecyclerView, "全部加载完毕", Snackbar.LENGTH_SHORT)
+                    .setAction("知道了", null)
                     .show();
             return;
         }
@@ -174,7 +184,7 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
         loadData(hasLoadPage + 1);
     }
 
-    private void reloadData(){
+    private void reloadData() {
         mSwipeRefreshLayout.setRefreshing(true);
         mAllCommonGoods.clear();
         isALlLoad = false;
@@ -182,8 +192,8 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
         loadData(1);
     }
 
-    private void loadData(int startPage){
-        GankCloudApi.getIns()
+    private void loadData(int startPage) {
+        GankCloudApi.getInstance()
                 .getCommonGoods(mType, GankCloudApi.LOAD_LIMIT, startPage)
                 .cache()
                 .subscribeOn(Schedulers.newThread())
@@ -191,15 +201,15 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
                 .subscribe(getCommonGoodsObserver);
     }
 
-    private void disposeResults(final GoodsResult goodsResult){
-        if(mAllCommonGoods.isEmpty() && goodsResult.getResults().isEmpty()){
+    private void disposeResults(final GoodsResult goodsResult) {
+        if (mAllCommonGoods.isEmpty() && goodsResult.getResults().isEmpty()) {
             showNoDataView();
             return;
         }
         showContent();
-        if(goodsResult.getResults().size() == GankCloudApi.LOAD_LIMIT){
+        if (goodsResult.getResults().size() == GankCloudApi.LOAD_LIMIT) {
             hasLoadPage++;
-        }else {
+        } else {
             isALlLoad = true;
         }
         isLoadMore = false;
@@ -207,7 +217,7 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
         mCommonItemAdapter.updateItems(mAllCommonGoods, hasLoadPage == 1);
     }
 
-    private void showNoDataView(){
+    private void showNoDataView() {
         Drawable emptyDrawable = new IconDrawable(getContext(), Iconify.IconValue.zmdi_shopping_cart)
                 .colorRes(android.R.color.white);
         List<Integer> skipIds = new ArrayList<>();

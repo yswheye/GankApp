@@ -25,8 +25,7 @@
         <item name="android:windowBackground">@color/window_background</item>
     </style>
 
-    <style name="AppTheme" parent="Base.Theme.DesignDemo">
-    </style>
+    <style name="AppTheme" parent="Base.Theme.DesignDemo" />
 
 
 

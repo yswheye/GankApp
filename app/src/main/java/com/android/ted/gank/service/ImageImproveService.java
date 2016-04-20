@@ -25,15 +25,18 @@ import android.graphics.Point;
 
 import com.android.ted.gank.db.Image;
 import com.orhanobut.logger.Logger;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
+//import com.squareup.okhttp.OkHttpClient;
+//import com.squareup.okhttp.Request;
+//import com.squareup.okhttp.Response;
 
 import io.realm.Sort;
 import java.io.IOException;
 
 import io.realm.Realm;
-import io.realm.RealmResults;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+//import io.realm.RealmResults;
 
 /**
  * 完善图片信息的服务
