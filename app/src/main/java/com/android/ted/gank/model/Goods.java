@@ -4,9 +4,9 @@ package com.android.ted.gank.model;
  * Created by Ted on 2015/8/23.
  * 干货实体类
  */
-public class Goods{
+public class Goods {
 
-//            "who":"Jason",
+    //            "who":"Jason",
 //            "publishedAt":"2015-08-21T04:09:13.777Z",
 //            "desc":"着色的加载视图库",
 //            "type":"Android",
