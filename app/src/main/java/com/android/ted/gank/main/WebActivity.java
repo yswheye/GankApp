@@ -1,15 +1,19 @@
 package com.android.ted.gank.main;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.WindowManager;
@@ -19,6 +23,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import com.android.ted.gank.R;
 
@@ -36,7 +41,6 @@ public class WebActivity extends AppCompatActivity {
     private boolean isLoadError = false;// 加载失败
 
     /**
-     *
      * @param context
      * @param title
      * @param url
@@ -81,9 +85,47 @@ public class WebActivity extends AppCompatActivity {
                 supportFinishAfterTransition();
             }
         });
+        toolbar.setOnMenuItemClickListener(onMenuItemClick);
 
         initWebView();
         load(url);
+    }
+
+    private Toolbar.OnMenuItemClickListener onMenuItemClick = new Toolbar.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem menuItem) {
+            switch (menuItem.getItemId()) {
+                case R.id.web_share:
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("text/plain"); // 纯文本
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "gank");
+                    intent.putExtra(Intent.EXTRA_TEXT, url);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(Intent.createChooser(intent, "我的分享"));
+                    break;
+                case R.id.web_broswer:
+                    openBroswer(url);
+                    break;
+            }
+            return true;
+        }
+    };
+
+    private void openBroswer(String url) {
+        try {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            Uri content_url = Uri.parse(url);
+            intent.setData(content_url);
+            intent.setClassName("com.android.browser", "com.android.browser.BrowserActivity");
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            Uri content_url = Uri.parse(url);
+            intent.setData(content_url);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -97,6 +139,12 @@ public class WebActivity extends AppCompatActivity {
             }
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.web_menu, menu);
+        return true;
     }
 
     @Override
