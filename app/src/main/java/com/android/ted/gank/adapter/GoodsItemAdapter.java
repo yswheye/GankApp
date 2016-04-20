@@ -21,6 +21,7 @@ import android.widget.TextView;
 import com.android.ted.gank.R;
 import com.android.ted.gank.data.ImageGoodsCache;
 import com.android.ted.gank.db.Image;
+import com.android.ted.gank.main.WebActivity;
 import com.android.ted.gank.manager.CollectManager;
 import com.android.ted.gank.model.Goods;
 import com.android.ted.gank.utils.Utils;
@@ -58,7 +59,7 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     @Override
     public void onClick(View view) {
         final int viewId = view.getId();
-        if(viewId == R.id.img_like_goods){
+        if (viewId == R.id.img_like_goods) {
 
         }
     }
@@ -66,13 +67,14 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private View.OnClickListener mItemOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View view) {
-            Integer position = (Integer)view.getTag();
+            Integer position = (Integer) view.getTag();
             Goods goods = goodsItemData.get(position.intValue());
-            Intent intent= new Intent();
-            intent.setAction("android.intent.action.VIEW");
-            Uri content_url = Uri.parse(goods.getUrl());
-            intent.setData(content_url);
-            view.getContext().startActivity(intent);
+//            Intent intent= new Intent();
+//            intent.setAction("android.intent.action.VIEW");
+//            Uri content_url = Uri.parse(goods.getUrl());
+//            intent.setData(content_url);
+//            view.getContext().startActivity(intent);
+            WebActivity.openWeb(view.getContext(), goods.getDesc(), goods.getUrl());
         }
     };
 
@@ -111,8 +113,8 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Goods goods = goodsItemData.get(position);
         Image image = ImageGoodsCache.getIns().getImgGoodsRandom(position);
         boolean hasImg = null != image;
-        holder.txtGoodsTitle.setText("#"+goods.getDesc());
-        holder.txtImgAuthor.setText(hasImg?"图："+image.getWho():"");
+        holder.txtGoodsTitle.setText("#" + goods.getDesc());
+        holder.txtImgAuthor.setText(hasImg ? "图：" + image.getWho() : "");
         holder.txtGoodsAuthor.setText(getGoodsAuthorInfo(goods));
         loadGoodsImage(holder, image);
         updateHeartButton(holder, goods, false);
@@ -131,21 +133,21 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return goodsItemData.size();
     }
 
-    private String getGoodsAuthorInfo(Goods goods){
+    private String getGoodsAuthorInfo(Goods goods) {
         StringBuilder builder = new StringBuilder();
         Date date = Utils.formatDateFromStr(goods.getPublishedAt());
         String dateStr = Utils.getFormatDateStr(date);
-        builder.append(goods.getWho()).append(TextUtils.isEmpty(dateStr)?"":"@"+dateStr);
+        builder.append(goods.getWho()).append(TextUtils.isEmpty(dateStr) ? "" : "@" + dateStr);
         return builder.toString();
     }
 
-    private void loadGoodsImage(final CellGoodsViewHolder holder,Image imgGoods){
-        if(null == imgGoods || TextUtils.isEmpty(imgGoods.getUrl())){
+    private void loadGoodsImage(final CellGoodsViewHolder holder, Image imgGoods) {
+        if (null == imgGoods || TextUtils.isEmpty(imgGoods.getUrl())) {
             Glide.with(context)
                     .load(R.drawable.item_default_img)
                     .centerCrop()
                     .into(holder.imgGoodsImageBg);
-        }else {
+        } else {
             Glide.with(context)
                     .load(imgGoods.getUrl())
                     .centerCrop()
@@ -154,7 +156,7 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
 
-    private void updateHeartButton(final CellGoodsViewHolder holder,Goods goods, boolean animated) {
+    private void updateHeartButton(final CellGoodsViewHolder holder, Goods goods, boolean animated) {
         if (animated) {
             if (!CollectManager.getIns().isCollect(goods)) {
                 AnimatorSet animatorSet = new AnimatorSet();
@@ -186,7 +188,7 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 });
                 animatorSet.start();
-            }else {
+            } else {
 
             }
         } else {
@@ -197,7 +199,6 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             }
         }
     }
-
 
 
     private void animatePhotoLike(final CellGoodsViewHolder holder) {
@@ -252,7 +253,7 @@ public class GoodsItemAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 //        }
     }
 
-    public void updateItems(ArrayList<Goods> goods,boolean animated) {
+    public void updateItems(ArrayList<Goods> goods, boolean animated) {
         goodsItemData.clear();
         goodsItemData.addAll(goods);
         animateItems = animated;
