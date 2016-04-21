@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity {
         mPagerAdapter.addFragment(CommonGoodsListFragment.newFragment("IOS"), "IOS");
         mPagerAdapter.addFragment(mBenefitListFragment, "福利");
         mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setOffscreenPageLimit(2);
     }
 
     private void setupDrawerContent(NavigationView navigationView) {
