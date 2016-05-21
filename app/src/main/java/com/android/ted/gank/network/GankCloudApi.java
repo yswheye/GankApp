@@ -22,19 +22,7 @@ import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
-import retrofit2.http.Query;
 import rx.Observable;
-
-//import com.squareup.okhttp.Cache;
-//import com.squareup.okhttp.Interceptor;
-//import com.squareup.okhttp.OkHttpClient;
-//import com.squareup.okhttp.Response;
-//import retrofit.RequestInterceptor;
-//import retrofit.RestAdapter;
-//import retrofit.client.OkClient;
-//import retrofit.converter.GsonConverter;
-//import retrofit.http.GET;
-//import retrofit.http.Path;
 
 public class GankCloudApi {
     public static GankCloudApi instance;
