@@ -34,16 +34,18 @@ import com.android.ted.gank.model.GoodsResult;
 import com.android.ted.gank.network.GankCloudApi;
 import com.malinskiy.materialicons.IconDrawable;
 import com.malinskiy.materialicons.Iconify;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.adapter.rxjava.HttpException;
 import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 //import retrofit.RetrofitError;
 
@@ -195,10 +197,30 @@ public class CommonGoodsListFragment extends BaseLoadingFragment implements Swip
     private void loadData(int startPage) {
         GankCloudApi.getInstance()
                 .getCommonGoods(mType, GankCloudApi.LOAD_LIMIT, startPage)
-                .cache()
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(getCommonGoodsObserver);
+                .enqueue(new Callback<GoodsResult>() {
+                    @Override
+                    public void onResponse(Call<GoodsResult> call, Response<GoodsResult> response) {
+                        Logger.d(response.body().toString());
+                        if (response.body() != null) {
+                            disposeResults(response.body());
+                        }
+                        mSwipeRefreshLayout.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<GoodsResult> call, Throwable t) {
+                        isLoadMore = false;
+                        if (mCommonItemAdapter.getItemCount() > 0) {
+                            mSwipeRefreshLayout.setRefreshing(false);
+                            Toast.makeText(getContext(), "加载失败", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
+                        Drawable errorDrawable = new IconDrawable(getContext(), Iconify.IconValue.zmdi_network_off)
+                                .colorRes(android.R.color.white);
+                        showError(errorDrawable,"加载失败","","请重试",mErrorRetryListener);
+                    }
+                });
     }
 
     private void disposeResults(final GoodsResult goodsResult) {

@@ -18,4 +18,10 @@ public class GoodsResult extends BaseResult{
         this.results = results;
     }
 
+    @Override
+    public String toString() {
+        return "GoodsResult{" +
+                "results=" + results +
+                '}';
+    }
 }

@@ -20,6 +20,6 @@ public class GankApplication extends Application {
     }
 
     private void initLogger() {
-        Logger.init("xiongwei").hideThreadInfo().setLogValve(BuildConfig.LOG_DEBUG).methodCount(1);
+        Logger.init("_haha").hideThreadInfo().setLogValve(BuildConfig.LOG_DEBUG).methodCount(1);
     }
 }

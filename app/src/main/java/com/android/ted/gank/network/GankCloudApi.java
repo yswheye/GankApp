@@ -17,6 +17,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -140,13 +141,13 @@ public class GankCloudApi {
     public interface GankCloudService {
 
         @GET("data/Android/{limit}/{page}")
-        Observable<GoodsResult> getAndroidGoods(
+        Call<GoodsResult> getAndroidGoods(
                 @Path("limit") int limit,
                 @Path("page") int page
         );
 
         @GET("data/iOS/{limit}/{page}")
-        Observable<GoodsResult> getIosGoods(
+        Call<GoodsResult> getIosGoods(
                 @Path("limit") int limit,
                 @Path("page") int page
         );
@@ -171,7 +172,7 @@ public class GankCloudApi {
         );
     }
 
-    public Observable<GoodsResult> getCommonGoods(String type,int limit, int page) {
+    public Call<GoodsResult> getCommonGoods(String type,int limit, int page) {
         if("Android".equalsIgnoreCase(type)){
             return mWebService.getAndroidGoods(limit, page);
         }
@@ -181,11 +182,11 @@ public class GankCloudApi {
         return mWebService.getAndroidGoods(limit, page);
     }
 
-    public Observable<GoodsResult> getAndroidGoods(int limit, int page) {
+    public Call<GoodsResult> getAndroidGoods(int limit, int page) {
         return mWebService.getAndroidGoods(limit, page);
     }
 
-    public Observable<GoodsResult> getIosGoods(int limit, int page) {
+    public Call<GoodsResult> getIosGoods(int limit, int page) {
         return mWebService.getIosGoods(limit, page);
     }
 
